@@ -1,80 +1,168 @@
 import React, { useState, useEffect } from 'react';
 import { MdChevronLeft, MdCheck } from 'react-icons/md';
-import { Input, Form, Select } from '@rocketseat/unform';
+import { Input, Form } from '@rocketseat/unform';
+import PropTypes from 'prop-types';
+import * as Yup from 'yup';
+import { toast } from 'react-toastify';
+
 import api from '../../services/api';
-import { Link } from 'react-router-dom';
 
-import { Container } from './styles';
+import { Container, Button } from './styles';
 
+const schema = Yup.object().shape({
+  name: Yup.string().required('O nome é obrigatório'),
+  address: Yup.string().required('O nome da rua é obrigatório'),
+  number: Yup.number('Deve informar um valor numérico')
+    .typeError('Deve informar um valor numérico')
+    .required('O número é obrigatório'),
+  state: Yup.string().required('O estado é obrigatório'),
+  city: Yup.string().required('A cidade é obrigatória'),
+  zip_code: Yup.string()
+    .required('O CEP é obrigatório')
+    .min(8, 'O CEP deve ter no mínimo 8 caracteres')
+    .max(9, 'O CEP deve ter no máximo 9 caracteres'),
+});
 
-function DeliveryForm() {
-  const [recipients, setRecipients] = useState([]);
-  const [deliverymans, setDeliverymans] = useState([]);
+export default function RecipientForm( { match, history } ) {
+  const [recipients, setRecipients] = useState(null);
+
+  const { id } = match.params;
+  const formType = id ? 'edit' : 'new';
+
+  console.tron.log(id);
 
   useEffect(() => {
     async function loadRecipients() {
-      const response = await api.get('recipients');
+      const response = await api.get(`/recipients/${id}`);
 
       setRecipients(response.data);
     }
     loadRecipients();
-  }, []);
+  }, [id]);
 
-  useEffect(() => {
-    async function loadDeliverymans() {
-      const response = await api.get('deliverymans');
-
-      setDeliverymans(response.data);
+  async function createRecipient(data) {
+    try {
+      await api.post('/recipients', data);
+      toast.success('O destinatário foi criado com sucesso');
+      history.push('/recipients');
+    } catch (err) {
+      toast.error('Não foi possível criar o destinatário');
     }
-    loadDeliverymans();
-  }, []);
+  }
+
+  async function editRecipient(data) {
+    try {
+      await api.put(`/recipients/${id}`, data);
+      toast.success('O destinatário foi editado com sucesso');
+      history.push('/recipients');
+    } catch (err) {
+      toast.error('Não foi possível editar o destinatário');
+    }
+  }
 
   function handleSubmit(data){
-
+    switch (formType) {
+      case 'new':
+        createRecipient(data);
+        break;
+      case 'edit':
+        editRecipient(data);
+        break;
+      default:
+        break;
+    }
   }
 
   return (
-      <Container>
+    <Container>
       <div>
         <header>
-          <strong>Cadastro de destinatário</strong>
+          <strong>{formType === 'new' ? 'Cadastro' : 'Edição'} de destinatário</strong>
         </header>
         <div>
-          <Link to ="/deliveries">
-            <div>
-              <MdChevronLeft size={16} color="#FFF" />
-            </div>
+          <Button
+            type="button"
+            cancel
+            onClick={() => history.push('/recipients')}
+          >
+            <MdChevronLeft size={25} color="#FFF" />
             <span>VOLTAR</span>
-          </Link>
-          <Link onClick ={handleSubmit}>
-            <div>
-              <MdCheck size={16} color="#FFF" />
-            </div>
+          </Button>
+
+          <Button type="submit" form="recipientform">
+            <MdCheck size={20} color="#FFF" />
             <span>SALVAR</span>
-          </Link>
+          </Button>
         </div>
       </div>
 
-      <Form onSubmit={handleSubmit}>
-        <div>
-          <label>Destinatário</label>
-          <select name="recipient">
-            {recipients.map(recipient => (
-              <option key={recipient.id} value={recipient.name}>{recipient.name}</option>
-            ))}
-          </select>
-          <label>Entregador</label>
-          <select name="deliveryman">
-            {deliverymans.map(deliveryman => (
-              <option key={deliveryman.id} value={deliveryman.name}>{deliveryman.name}</option>
-            ))}
-          </select>
+      <Form initialData={recipients} id="recipientform" schema={schema} onSubmit={handleSubmit}>
+        <div className="line">
+          <div className="group">
+            <span>Nome</span>
+            <Input
+              name="name"
+              id="name"
+              type="text"
+            />
+          </div>
         </div>
-        <Input name="product" placeholder="Nome do Produto"/>
-      </Form>
+        <div className="line">
+          <div className="group">
+            <span>Rua</span>
+            <Input
+              name="address"
+              id="address"
+              type="text"
+            />
+          </div>
+          <div className="group">
+            <span>Número</span>
+            <Input name="number" id="number" type="text" />
+          </div>
+          <div className="group">
+            <span>Complemento</span>
+            <Input
+              name="additional"
+              id="additional"
+              type="text"
+            />
+          </div>
+        </div>
 
+        <div className="line">
+          <div className="group">
+            <span>Cidade</span>
+            <Input
+              name="city"
+              id="city"
+              type="text"
+            />
+          </div>
+          <div className="group">
+            <span>Estado</span>
+            <Input
+              name="state"
+              id="state"
+              type="text"
+            />
+          </div>
+          <div className="group">
+            <span>CEP</span>
+            <Input
+              name="zip_code"
+              id="zip_code"
+              type="text"
+            />
+          </div>
+        </div>
+      </Form>
     </Container>
  );
 }
 
-export default DeliveryForm;
+RecipientForm.propTypes = {
+  match: PropTypes.shape().isRequired,
+  history: PropTypes.shape().isRequired,
+};
+

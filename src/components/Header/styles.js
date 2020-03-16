@@ -28,7 +28,7 @@ export const Content = styled.div`
     a {
       margin-right: 20px;
       font-weight: bold;
-      color: #7159c1;
+      color: #444c;
     }
   }
 
@@ -66,4 +66,14 @@ export const Profile = styled.div`
     height: 32px;
     border-radius: 50%;
   }
+
+  button {
+      margin-top: 2px;
+      font-size: 12px;
+      color: #e61919;
+      border: none;
+      background: none;
+      align-self: right;
+    }
+
 `;

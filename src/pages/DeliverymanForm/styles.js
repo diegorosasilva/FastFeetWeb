@@ -45,7 +45,7 @@ export const Container = styled.div`
         }
       }
     }
-    input, select {
+    input {
       background: #fff;
       box-shadow: none; /* box-shadow não está funcionando. PQ??? */
       border: 1 solid #999;
@@ -86,4 +86,12 @@ export const Button = styled.button`
   svg {
     margin-left: 5px;
   }
+`;
+
+export const FieldContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: ${props => (props.size ? `${props.size}px` : '100%')};
+  margin-left: ${props => (props.leftSpace ? '16px' : 0)};
+  margin-right: ${props => (props.rightSpace ? '16px' : 0)};
 `;

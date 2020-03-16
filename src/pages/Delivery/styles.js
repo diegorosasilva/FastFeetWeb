@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { darken } from 'polished';
 import searchIcon from '../../assets/searchicon.png'
 
@@ -34,45 +34,34 @@ export const Container = styled.div`
       }
     }
 
-
-
-    a {
-      background: #7159c1;
-      color: #FFF;
-      border: 0;
+    button {
+      background: #7d40e7;
+      border: none;
       border-radius: 4px;
-      overflow: hidden;
-      margin-top: auto;
-
+      font-size: 12px;
+      color: #fff;
+      padding: 0 5px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
 
         &:hover {
           background: ${darken(0.03, '#7159c1')};
         }
 
-        > div {
-          display: flex;
-          align-items: center;
-          padding: 12px;
-          background: rgba(0, 0, 0, 0);
+      > span {
+        flex: 1;
+        text-align: center;
+        font-weight: bold;
+        margin-right: 10px;
+        padding: 10px;
+      }
 
-          svg {
-            margin-right: 5px;
-          }
-        }
-
-        > span {
-          flex: 1;
-          text-align: center;
-          font-weight: bold;
-          margin-right: 10px;
-        }
+      svg {
+        margin-left: 5px;
+      }
     }
-
   }
-
-
 `;
 
 export const DeliveryTable = styled.table`
@@ -97,6 +86,17 @@ td:nth-child(1) {
 	border-radius: 4px 0 0 8px;
 }
 
+td:nth-child(3) {
+	display: flex;
+  align-items: center;
+  img {
+    height: 32px;
+    width: 32px;
+    margin-right: 4px;
+    border-radius: 50%;
+  }
+}
+
 td:last-child {
 	border-radius: 0 4px 4px 0;
 }
@@ -106,6 +106,162 @@ th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  color: #7159c1;
+  color: #000;
 }
+`;
+
+const handleColorStatus = status => {
+  switch (status) {
+    case 'pendente':
+      return css`
+        & {
+          background: #f0f0df;
+          > span {
+            color: #c1bc35;
+          }
+        }
+        &::before {
+          background: #c1bc35;
+        }
+      `;
+    case 'retirada':
+      return css`
+        & {
+          background: #bad2ff;
+          > span {
+            color: #4d85ee;
+          }
+        }
+        &::before {
+          background: #4d85ee;
+        }
+      `;
+    case 'entregue':
+      return css`
+        & {
+          background: #dff0df;
+          > span {
+            color: #2ca42b;
+          }
+        }
+        &::before {
+          background: #2ca42b;
+        }
+      `;
+    case 'cancelado':
+      return css`
+        & {
+          background: #fab0b0;
+          > span {
+            color: #de3b3b;
+          }
+        }
+        &::before {
+          background: #de3b3b;
+        }
+      `;
+    default:
+      return 'background: none;';
+  }
+};
+
+export const Status = styled.div`
+  display: flex;
+  padding: 4px 8px;
+  border-radius: 50px;
+  max-width: 7.6em;
+  align-items: center;
+  justify-content: center;
+  ${({ status }) => handleColorStatus(status)}
+  span {
+    padding-left: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+  &::before {
+    content: '';
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+  }
+`;
+
+export const Actions = styled.div`
+  position: relative;
+`;
+
+export const ActionList = styled.div`
+  display: none;
+
+  &:hover{
+    display:block;
+  }
+
+`;
+
+export const Badge = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+&:hover + ${ActionList}{
+    display:block;
+  }
+`;
+
+export const Options = styled.button`
+  position: absolute;
+  width: 160px;
+  left: calc(50% - 80px);
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #999999;
+  box-shadow: 1px 1px 8px #000000;
+  padding: 10px;
+  z-index: 10;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: calc(50% - 8px);
+    top: -8px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #fff;
+  }
+`;
+
+export const Option = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+
+  & + div {
+    margin-top: 2px;
+    padding-top: 6px;
+    border-top: 1px solid #eeeeee;
+  }
+
+  a {
+    padding: 5px 0;
+    color: #666;
+    font-size: 12px;
+    display: flex;
+    align-items: start;
+    margin-left: 2px;
+    span {
+      margin-left: 2px;
+    }
+  }
+`;
+
+export const ModalTags = styled.div`
+  span {
+    font-weight: bold;
+    font-size: 14px;
+  }
 `;
