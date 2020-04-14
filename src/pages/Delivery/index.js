@@ -1,39 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
 import { MdAdd, MdMoreHoriz, MdVisibility, MdCreate, MdDeleteForever } from 'react-icons/md';
+import { format, parseISO } from 'date-fns';
 import { Input } from '@rocketseat/unform';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Modal from '../../components/Modal';
 
 import api from '../../services/api';
 
 import history from '../../services/history';
-import { Container, DeliveryTable, Status, Actions, Badge, ActionList, Options, Option, ModalTags } from './styles';
+import { Container, DeliveryTable, Status, Actions, Badge, ActionList, Options, Option, Signature } from './styles';
 
 
 function Delivery() {
-  Modal.setAppElement('#root');
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
   const [deliveries, setDeliveries] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-
-  const customStyles = {
-    overlay: {
-      backgroundColor: 'grey',
-      opacity: 1,
-    },
-    content: {
-      width: '20%',
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      boxShadow: '1px 1px 8px #000000',
-    }
-  }
 
   useEffect(() => {
     async function loadDeliveries() {
@@ -43,13 +24,26 @@ function Delivery() {
         },
       });
 
-      setDeliveries(response.data);
+      const data = response.data.map(deli => ({
+        ...deli,
+        modalIsOpen: false,
+      }));
+
+      setDeliveries(data);
     }
     loadDeliveries();
   }, [searchValue]);
 
-  function handleToggleOpenModal() {
-    setModalIsOpen(!modalIsOpen);
+  function handleToggleOpenModal(id) {
+    console.tron.log(id);
+    setDeliveries(
+      deliveries.map(deli => {
+        if (deli.id === id) {
+          return { ...deli, modalIsOpen: !deli.modalIsOpen };
+        }
+        return { ...deli };
+      })
+    );
   }
 
   async function deleteDelivery(id) {
@@ -129,7 +123,7 @@ function Delivery() {
                 <ActionList>
                   <Options>
                     <Option>
-                      <Link onClick={handleToggleOpenModal}>
+                      <Link onClick={() => handleToggleOpenModal(delivery.id)}>
                         <MdVisibility color="#7D40E7" size={15} />
                         <span>Visualizar</span>
                       </Link>
@@ -148,27 +142,48 @@ function Delivery() {
                     </Option>
                   </Options>
                 </ActionList>
-
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={handleToggleOpenModal}
-                  style={customStyles}
-                >
-                  <ModalTags>
-                    <span>Informações da encomenda</span>
-                    <p>{delivery.recipient.address}, {delivery.recipient.number}</p>
-                    <p>{delivery.recipient.city} - {delivery.recipient.state}</p>
-                    <p>{delivery.recipient.zip_code}</p>
-                    <br/>
-                    <span>Datas</span>
-                    <br/>
-                    <span>Retirada:</span><p>{delivery.start_date ? delivery.start_date : 'Não retirado'}</p>
-                    <span>Entrega:</span><p>{delivery.end_date ? delivery.end_date : 'Não entregue'}</p>
-                    <br/>
-                    <span>Assinatura do destinatário</span>
-                  </ModalTags>
-                </Modal>
               </Actions>
+                <Modal
+                  visible={delivery.modalIsOpen}
+                  handler={handleToggleOpenModal}
+                  handlerParam={delivery.id}
+                >
+                  <h4>Informações da encomenda</h4>
+                  <p>
+                    {delivery.recipient.address}, {delivery.recipient.number}
+                  </p>
+                  <p>
+                    {delivery.recipient.city}, {delivery.recipient.state}
+                  </p>
+                  <p>{delivery.recipient.zip_code}</p>
+                  <hr />
+                  <h4>Datas</h4>
+                  <p>
+                    <strong>Retirada:</strong>{' '}
+                    {delivery.start_date ? (
+                      format(parseISO(delivery.start_date), 'dd/MM/yyyy')
+                    ) : (
+                      <>--/--/----</>
+                    )}
+                  </p>
+                  <p>
+                    <strong>Entrega:</strong>{' '}
+                    {delivery.end_date ? (
+                      format(parseISO(delivery.end_date), 'dd/MM/yyyy')
+                    ) : (
+                      <>--/--/----</>
+                    )}
+                  </p>
+                  <hr />
+                  <h4>Assinatura do destinatário</h4>
+                  {delivery.signature ? (
+                      <Signature>
+                        <img src={delivery.signature.url} alt="assinatura" />
+                      </Signature>
+                    ) : (
+                      <p>Sem assinatura</p>
+                    )}
+                </Modal>
             </td>
           </tr>
           ))}

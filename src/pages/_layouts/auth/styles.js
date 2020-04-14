@@ -40,10 +40,11 @@ export const Content = styled.div`
     }
 
     span {
-      color: #fb6f91;
-      align-self: flex-start;
-      margin: 0 0 10px;
-      font-weight: bold;
+          color: #444;
+          font-size: 14px;
+          align-self: flex-start;
+          font-weight: bold;
+          margin-bottom: 5px;
     }
 
     button {

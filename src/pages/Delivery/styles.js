@@ -265,3 +265,14 @@ export const ModalTags = styled.div`
     font-size: 14px;
   }
 `;
+
+export const Signature = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  > img {
+    max-width: 400px;
+    height: auto;
+    margin: 12px 0px;
+  }
+`;

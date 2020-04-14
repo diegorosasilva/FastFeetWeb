@@ -1,41 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
 import api from '../../services/api';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Modal from '../../components/Modal';
 
 import { MdMoreHoriz, MdVisibility, MdDeleteForever } from 'react-icons/md'
 
-import { Container, DeliveryTable, Actions, Badge, ActionList, Options, Option, ModalTags } from './styles';
+import { Container, DeliveryTable, Actions, Badge, ActionList, Options, Option } from './styles';
+
 
 function DeliveryProblem() {
-  Modal.setAppElement('#root');
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
   const [deliveryproblems, setDeliveryproblems] = useState([]);
-
-  const customStyles = {
-    overlay: {
-      backgroundColor: 'grey',
-      opacity: 0.9,
-    },
-    content: {
-      width: '20%',
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      boxShadow: '1px 1px 8px #000000',
-    }
-  }
 
   useEffect(() => {
     async function loadDeliveryproblems() {
       const response = await api.get('deliveryproblems');
 
-      setDeliveryproblems(response.data);
+      const data = response.data.map(prob => ({
+        ...prob,
+        modalIsOpen: false,
+      }));
+
+      setDeliveryproblems(data);
     }
     loadDeliveryproblems();
   }, []);
@@ -54,8 +40,15 @@ function DeliveryProblem() {
     }
   }
 
-  function handleToggleOpenModal() {
-    setModalIsOpen(!modalIsOpen);
+  function handleToggleOpenModal(id) {
+    setDeliveryproblems(
+      deliveryproblems.map(prob => {
+        if (prob.id === id) {
+          return { ...prob, modalIsOpen: !prob.modalIsOpen };
+        }
+        return { ...prob };
+      })
+    );
   }
 
   return (
@@ -86,7 +79,7 @@ function DeliveryProblem() {
               <ActionList>
                 <Options>
                   <Option>
-                    <Link onClick={handleToggleOpenModal}>
+                    <Link onClick={() => handleToggleOpenModal(deliveryproblem.id)}>
                       <MdVisibility color="#7D40E7" size={15} />
                       <span>Visualizar</span>
                     </Link>
@@ -99,17 +92,14 @@ function DeliveryProblem() {
                   </Option>
                 </Options>
               </ActionList>
-              <p>{deliveryproblem.id}</p>
             </Actions>
             <Modal
-              isOpen={modalIsOpen}
-              onRequestClose={handleToggleOpenModal}
-              style={customStyles}
+              visible={deliveryproblem.modalIsOpen}
+              handler={handleToggleOpenModal}
+              handlerParam={deliveryproblem.id}
             >
-              <ModalTags>
-                <span>VISUALIZAR PROBLEMA</span>
-                <p>{deliveryproblem.id}</p>
-              </ModalTags>
+              <h4>VISUALIZAR PROBLEMA</h4>
+              <p>{deliveryproblem.description}</p>
             </Modal>
           </td>
         </tr>

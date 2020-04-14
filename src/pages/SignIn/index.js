@@ -28,8 +28,10 @@ export default function SignIn() {
         <img src={logo} alt="FastFeet" />
 
         <Form schema={schema} onSubmit={handleSubmit}>
-          <Input name="email" type = "email" placeholder="Seu e-mail" />
-          <Input name="password" type="password" placeholder="Sua senha secreta" />
+          <span>SEU E-MAIL</span>
+          <Input name="email" type = "email" placeholder="exemplo@email.com" />
+          <span>SUA SENHA</span>
+          <Input name="password" type="password" placeholder="***********" />
 
           <button type="submit">{loading ? 'Carregando...' : 'Entrar no sistema'}</button>
         </Form>
